@@ -5,193 +5,123 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Real Estate Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
   <style>
-    body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; }
+    body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; margin: 0; }
+    .btn { transition: transform 0.1s; }
+    .btn:active { transform: scale(0.95); }
   </style>
 </head>
-<body>
-  <div id="root"></div>
-  <script type="text/babel">
-    const { useState, useEffect } = React;
-    const { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip } = Recharts;
+<body class="text-white p-4">
+  <div id="app" class="max-w-lg mx-auto">
+    <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-1">🏠 Real Estate Tracker</h1>
+    <p class="text-slate-400 text-sm mb-6">Bay Area price predictions</p>
 
-    function generateHistoricalData(location, sqft) {
-      const basePrice = location === 'san-mateo' ? 1200000 : 950000;
-      const pricePerSqft = location === 'san-mateo' ? 850 : 720;
-      const adjustedBase = basePrice + (sqft - 1500) * pricePerSqft;
-      const data = [];
-      const startDate = new Date('2020-01-01');
-      
-      for (let i = 0; i < 60; i++) {
-        const date = new Date(startDate);
-        date.setMonth(date.getMonth() + i);
-        const yearProgress = i / 12;
-        const trend = 1 + (yearProgress * 0.08);
-        const seasonality = Math.sin((i % 12) / 12 * Math.PI * 2) * 0.02;
-        const noise = (Math.random() - 0.5) * 0.04;
-        const covidBump = (i >= 12 && i <= 30) ? 0.15 : 0;
-        const correction = (i >= 36 && i <= 48) ? -0.08 : 0;
-        const multiplier = trend + seasonality + noise + covidBump + correction;
-        data.push({ date: date.toISOString().slice(0, 7), price: Math.round(adjustedBase * multiplier), predicted: false });
-      }
-      return data;
-    }
+    <div class="mb-6">
+      <label class="block text-sm text-slate-400 mb-2">📍 Location</label>
+      <div class="grid grid-cols-2 gap-3">
+        <button id="btn-sanmateo" onclick="setLocation('san-mateo')" class="btn py-4 rounded-xl text-lg font-semibold bg-blue-600 shadow-lg">San Mateo</button>
+        <button id="btn-albany" onclick="setLocation('albany')" class="btn py-4 rounded-xl text-lg font-semibold bg-slate-700/50 border border-slate-600">Albany</button>
+      </div>
+    </div>
 
-    function predictPrice(historicalData, targetDate) {
-      const recentData = historicalData.slice(-12);
-      const avgRecentPrice = recentData.reduce((sum, d) => sum + d.price, 0) / recentData.length;
-      const firstHalf = recentData.slice(0, 6);
-      const secondHalf = recentData.slice(6);
-      const firstAvg = firstHalf.reduce((sum, d) => sum + d.price, 0) / firstHalf.length;
-      const secondAvg = secondHalf.reduce((sum, d) => sum + d.price, 0) / secondHalf.length;
-      const monthlyTrend = (secondAvg - firstAvg) / 6;
-      const lastDataDate = new Date(historicalData[historicalData.length - 1].date + '-01');
-      const monthsAhead = (targetDate.getFullYear() - lastDataDate.getFullYear()) * 12 + (targetDate.getMonth() - lastDataDate.getMonth());
-      const trendMultiplier = Math.max(0.3, 1 - (monthsAhead * 0.02));
-      const projectedChange = monthlyTrend * monthsAhead * trendMultiplier;
-      const predictedPrice = Math.round(avgRecentPrice + projectedChange);
-      const confidence = Math.max(0.3, 1 - (monthsAhead * 0.03));
-      const uncertainty = 1 - confidence;
-      return {
-        predictedPrice,
-        confidence,
-        priceRange: { low: Math.round(predictedPrice * (1 - uncertainty * 0.15)), high: Math.round(predictedPrice * (1 + uncertainty * 0.15)) }
-      };
-    }
+    <div class="mb-6">
+      <label class="block text-sm text-slate-400 mb-2">📐 Size: <span id="sqft-display" class="text-white font-bold">1,800 sq ft</span></label>
+      <div class="flex flex-wrap gap-2" id="sqft-buttons"></div>
+    </div>
 
-    const formatPriceShort = (price) => price >= 1000000 ? `$${(price / 1000000).toFixed(2)}M` : `$${(price / 1000).toFixed(0)}K`;
-    const formatPrice = (price) => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(price);
+    <div class="mb-6">
+      <label class="block text-sm text-slate-400 mb-2">📅 Predict For</label>
+      <div class="flex flex-wrap gap-2" id="date-buttons"></div>
+    </div>
 
-    const DATE_PRESETS = [{ label: '3mo', months: 3 }, { label: '6mo', months: 6 }, { label: '1yr', months: 12 }, { label: '2yr', months: 24 }];
-    const SQFT_PRESETS = [1200, 1500, 1800, 2200, 2800];
-
-    function App() {
-      const [location, setLocation] = useState('san-mateo');
-      const [sqft, setSqft] = useState(1800);
-      const [monthsAhead, setMonthsAhead] = useState(6);
-      const [historicalData, setHistoricalData] = useState([]);
-      const [prediction, setPrediction] = useState(null);
-      const [chartData, setChartData] = useState([]);
-
-      useEffect(() => { setHistoricalData(generateHistoricalData(location, sqft)); }, [location, sqft]);
-
-      useEffect(() => {
-        if (historicalData.length > 0) {
-          const targetDate = new Date();
-          targetDate.setMonth(targetDate.getMonth() + monthsAhead);
-          const result = predictPrice(historicalData, targetDate);
-          setPrediction(result);
-          
-          const lastDate = new Date(historicalData[historicalData.length - 1].date + '-01');
-          const futurePoints = [];
-          const currentDate = new Date(lastDate);
-          currentDate.setMonth(currentDate.getMonth() + 1);
-          
-          while (currentDate <= targetDate) {
-            const interim = predictPrice(historicalData, currentDate);
-            futurePoints.push({ date: currentDate.toISOString().slice(0, 7), price: interim.predictedPrice, predicted: true });
-            currentDate.setMonth(currentDate.getMonth() + 1);
-          }
-          setChartData([...historicalData, ...futurePoints]);
-        }
-      }, [historicalData, monthsAhead]);
-
-      return (
-        <div className="min-h-screen text-white p-4">
-          <div className="max-w-lg mx-auto">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-emerald-400 bg-clip-text text-transparent mb-1">🏠 Real Estate Tracker</h1>
-            <p className="text-slate-400 text-sm mb-6">Bay Area price predictions</p>
-
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">📍 Location</label>
-              <div className="grid grid-cols-2 gap-3">
-                {['san-mateo', 'albany'].map(loc => (
-                  <button key={loc} onClick={() => setLocation(loc)}
-                    className={`py-4 rounded-xl text-lg font-semibold transition-all active:scale-95 ${location === loc ? 'bg-blue-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600'}`}>
-                    {loc === 'san-mateo' ? 'San Mateo' : 'Albany'}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">📐 Size: <span className="text-white font-bold">{sqft.toLocaleString()} sq ft</span></label>
-              <div className="flex flex-wrap gap-2">
-                {SQFT_PRESETS.map(size => (
-                  <button key={size} onClick={() => setSqft(size)}
-                    className={`py-3 px-4 rounded-xl font-medium transition-all active:scale-95 ${sqft === size ? 'bg-emerald-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600'}`}>
-                    {size.toLocaleString()}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <label className="block text-sm text-slate-400 mb-2">📅 Predict For</label>
-              <div className="flex flex-wrap gap-2">
-                {DATE_PRESETS.map(preset => (
-                  <button key={preset.label} onClick={() => setMonthsAhead(preset.months)}
-                    className={`py-3 px-5 rounded-xl font-medium transition-all active:scale-95 ${monthsAhead === preset.months ? 'bg-purple-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600'}`}>
-                    {preset.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {prediction && (
-              <div className="bg-gradient-to-br from-blue-900/60 to-emerald-900/60 rounded-2xl p-5 mb-6 border border-blue-500/30">
-                <div className="text-center mb-4">
-                  <p className="text-slate-400 text-sm">Predicted Price</p>
-                  <p className="text-5xl font-bold mt-1">{formatPriceShort(prediction.predictedPrice)}</p>
-                  <p className="text-slate-400 text-sm mt-2">{sqft.toLocaleString()} sq ft • {location === 'san-mateo' ? 'San Mateo' : 'Albany'}</p>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-                    <p className="text-slate-400 text-xs">Range</p>
-                    <p className="text-lg font-semibold text-emerald-400">{formatPriceShort(prediction.priceRange.low)} - {formatPriceShort(prediction.priceRange.high)}</p>
-                  </div>
-                  <div className="bg-slate-800/50 rounded-xl p-4 text-center">
-                    <p className="text-slate-400 text-xs">Confidence</p>
-                    <p className={`text-3xl font-bold ${prediction.confidence > 0.7 ? 'text-emerald-400' : prediction.confidence > 0.5 ? 'text-yellow-400' : 'text-red-400'}`}>
-                      {Math.round(prediction.confidence * 100)}%
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            <div className="bg-slate-800/50 rounded-2xl p-4 border border-slate-700">
-              <h2 className="text-lg font-semibold mb-3">📈 Price Trend</h2>
-              <div style={{height: 250}}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -15, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
-                        <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#374151" vertical={false} />
-                    <XAxis dataKey="date" stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 10 }} tickFormatter={v => v.slice(5)} interval="preserveStartEnd" />
-                    <YAxis stroke="#9CA3AF" tick={{ fill: '#9CA3AF', fontSize: 10 }} tickFormatter={v => `$${(v/1000000).toFixed(1)}M`} width={50} />
-                    <Tooltip contentStyle={{ backgroundColor: '#1F2937', border: '1px solid #374151', borderRadius: '8px' }} formatter={v => [formatPrice(v), 'Price']} />
-                    <Area type="monotone" dataKey="price" stroke="#10B981" strokeWidth={2} fill="url(#colorPrice)" />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            </div>
-
-            <footer className="mt-6 text-center text-slate-500 text-xs">Built for Cameron • Estimates only</footer>
-          </div>
+    <div id="prediction" class="bg-gradient-to-br from-blue-900/60 to-emerald-900/60 rounded-2xl p-5 mb-6 border border-blue-500/30">
+      <div class="text-center mb-4">
+        <p class="text-slate-400 text-sm">Predicted Price</p>
+        <p id="price" class="text-5xl font-bold mt-1">$1.46M</p>
+        <p id="details" class="text-slate-400 text-sm mt-2">1,800 sq ft • San Mateo</p>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+          <p class="text-slate-400 text-xs">Range</p>
+          <p id="range" class="text-lg font-semibold text-emerald-400">$1.39M - $1.52M</p>
         </div>
-      );
+        <div class="bg-slate-800/50 rounded-xl p-4 text-center">
+          <p class="text-slate-400 text-xs">Confidence</p>
+          <p id="confidence" class="text-3xl font-bold text-emerald-400">82%</p>
+        </div>
+      </div>
+    </div>
+
+    <footer class="mt-6 text-center text-slate-500 text-xs">Built for Cameron • Estimates only</footer>
+  </div>
+
+  <script>
+    let location = 'san-mateo';
+    let sqft = 1800;
+    let months = 6;
+
+    const SQFT_OPTIONS = [1200, 1500, 1800, 2200, 2800];
+    const DATE_OPTIONS = [{label:'3mo',m:3},{label:'6mo',m:6},{label:'1yr',m:12},{label:'2yr',m:24}];
+
+    function formatPrice(p) { return p >= 1000000 ? '$' + (p/1000000).toFixed(2) + 'M' : '$' + (p/1000).toFixed(0) + 'K'; }
+
+    function predict() {
+      const basePrice = location === 'san-mateo' ? 1200000 : 950000;
+      const ppsf = location === 'san-mateo' ? 850 : 720;
+      const base = basePrice + (sqft - 1500) * ppsf;
+      
+      // Simulated trend
+      const trend = 1.35 + (months * 0.005);
+      const predicted = Math.round(base * trend);
+      const confidence = Math.max(30, 100 - (months * 3));
+      const uncertainty = (100 - confidence) / 100;
+      const low = Math.round(predicted * (1 - uncertainty * 0.15));
+      const high = Math.round(predicted * (1 + uncertainty * 0.15));
+
+      document.getElementById('price').textContent = formatPrice(predicted);
+      document.getElementById('details').textContent = sqft.toLocaleString() + ' sq ft • ' + (location === 'san-mateo' ? 'San Mateo' : 'Albany');
+      document.getElementById('range').textContent = formatPrice(low) + ' - ' + formatPrice(high);
+      document.getElementById('confidence').textContent = confidence + '%';
+      document.getElementById('confidence').className = 'text-3xl font-bold ' + (confidence > 70 ? 'text-emerald-400' : confidence > 50 ? 'text-yellow-400' : 'text-red-400');
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    function setLocation(loc) {
+      location = loc;
+      document.getElementById('btn-sanmateo').className = 'btn py-4 rounded-xl text-lg font-semibold ' + (loc === 'san-mateo' ? 'bg-blue-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600');
+      document.getElementById('btn-albany').className = 'btn py-4 rounded-xl text-lg font-semibold ' + (loc === 'albany' ? 'bg-blue-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600');
+      predict();
+    }
+
+    function setSqft(s) {
+      sqft = s;
+      document.getElementById('sqft-display').textContent = s.toLocaleString() + ' sq ft';
+      renderSqftButtons();
+      predict();
+    }
+
+    function setMonths(m) {
+      months = m;
+      renderDateButtons();
+      predict();
+    }
+
+    function renderSqftButtons() {
+      const container = document.getElementById('sqft-buttons');
+      container.innerHTML = SQFT_OPTIONS.map(s => 
+        '<button onclick="setSqft('+s+')" class="btn py-3 px-4 rounded-xl font-medium '+(sqft===s?'bg-emerald-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+s.toLocaleString()+'</button>'
+      ).join('');
+    }
+
+    function renderDateButtons() {
+      const container = document.getElementById('date-buttons');
+      container.innerHTML = DATE_OPTIONS.map(d => 
+        '<button onclick="setMonths('+d.m+')" class="btn py-3 px-5 rounded-xl font-medium '+(months===d.m?'bg-purple-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+d.label+'</button>'
+      ).join('');
+    }
+
+    renderSqftButtons();
+    renderDateButtons();
+    predict();
   </script>
 </body>
 </html>
