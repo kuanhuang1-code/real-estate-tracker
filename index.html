@@ -52,31 +52,29 @@
       </div>
     </div>
 
-    <footer class="mt-6 text-center text-slate-500 text-xs">Built for Cameron • Estimates only</footer>
+    <footer class="mt-6 text-center text-slate-500 text-xs">Built for Cameron</footer>
   </div>
 
   <script>
-    let location = 'san-mateo';
-    let sqft = 1800;
-    let months = 6;
+    var location = 'san-mateo';
+    var sqft = 1800;
+    var months = 6;
 
-    const SQFT_OPTIONS = [1200, 1500, 1800, 2200, 2800];
-    const DATE_OPTIONS = [{label:'3mo',m:3},{label:'6mo',m:6},{label:'1yr',m:12},{label:'2yr',m:24}];
+    var SQFT_OPTIONS = [1200, 1500, 1800, 2200, 2800];
+    var DATE_OPTIONS = [{label:'3mo',m:3},{label:'6mo',m:6},{label:'1yr',m:12},{label:'2yr',m:24}];
 
     function formatPrice(p) { return p >= 1000000 ? '$' + (p/1000000).toFixed(2) + 'M' : '$' + (p/1000).toFixed(0) + 'K'; }
 
     function predict() {
-      const basePrice = location === 'san-mateo' ? 1200000 : 950000;
-      const ppsf = location === 'san-mateo' ? 850 : 720;
-      const base = basePrice + (sqft - 1500) * ppsf;
-      
-      // Simulated trend
-      const trend = 1.35 + (months * 0.005);
-      const predicted = Math.round(base * trend);
-      const confidence = Math.max(30, 100 - (months * 3));
-      const uncertainty = (100 - confidence) / 100;
-      const low = Math.round(predicted * (1 - uncertainty * 0.15));
-      const high = Math.round(predicted * (1 + uncertainty * 0.15));
+      var basePrice = location === 'san-mateo' ? 1200000 : 950000;
+      var ppsf = location === 'san-mateo' ? 850 : 720;
+      var base = basePrice + (sqft - 1500) * ppsf;
+      var trend = 1.35 + (months * 0.005);
+      var predicted = Math.round(base * trend);
+      var confidence = Math.max(30, 100 - (months * 3));
+      var uncertainty = (100 - confidence) / 100;
+      var low = Math.round(predicted * (1 - uncertainty * 0.15));
+      var high = Math.round(predicted * (1 + uncertainty * 0.15));
 
       document.getElementById('price').textContent = formatPrice(predicted);
       document.getElementById('details').textContent = sqft.toLocaleString() + ' sq ft • ' + (location === 'san-mateo' ? 'San Mateo' : 'Albany');
@@ -106,17 +104,23 @@
     }
 
     function renderSqftButtons() {
-      const container = document.getElementById('sqft-buttons');
-      container.innerHTML = SQFT_OPTIONS.map(s => 
-        '<button onclick="setSqft('+s+')" class="btn py-3 px-4 rounded-xl font-medium '+(sqft===s?'bg-emerald-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+s.toLocaleString()+'</button>'
-      ).join('');
+      var container = document.getElementById('sqft-buttons');
+      var html = '';
+      for (var i = 0; i < SQFT_OPTIONS.length; i++) {
+        var s = SQFT_OPTIONS[i];
+        html += '<button onclick="setSqft('+s+')" class="btn py-3 px-4 rounded-xl font-medium '+(sqft===s?'bg-emerald-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+s.toLocaleString()+'</button>';
+      }
+      container.innerHTML = html;
     }
 
     function renderDateButtons() {
-      const container = document.getElementById('date-buttons');
-      container.innerHTML = DATE_OPTIONS.map(d => 
-        '<button onclick="setMonths('+d.m+')" class="btn py-3 px-5 rounded-xl font-medium '+(months===d.m?'bg-purple-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+d.label+'</button>'
-      ).join('');
+      var container = document.getElementById('date-buttons');
+      var html = '';
+      for (var i = 0; i < DATE_OPTIONS.length; i++) {
+        var d = DATE_OPTIONS[i];
+        html += '<button onclick="setMonths('+d.m+')" class="btn py-3 px-5 rounded-xl font-medium '+(months===d.m?'bg-purple-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+d.label+'</button>';
+      }
+      container.innerHTML = html;
     }
 
     renderSqftButtons();
