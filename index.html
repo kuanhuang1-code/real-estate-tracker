@@ -9,6 +9,16 @@
     body { background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); min-height: 100vh; margin: 0; }
     .btn { transition: transform 0.1s; }
     .btn:active { transform: scale(0.95); }
+    input[type="number"], input[type="date"] { 
+      background: rgba(51, 65, 85, 0.5); 
+      border: 1px solid #475569; 
+      border-radius: 12px; 
+      padding: 12px 16px; 
+      color: white; 
+      font-size: 18px; 
+      width: 100%;
+    }
+    input:focus { outline: none; border-color: #3b82f6; }
   </style>
 </head>
 <body class="text-white p-4">
@@ -25,12 +35,14 @@
     </div>
 
     <div class="mb-6">
-      <label class="block text-sm text-slate-400 mb-2">📐 Size: <span id="sqft-display" class="text-white font-bold">1,800 sq ft</span></label>
+      <label class="block text-sm text-slate-400 mb-2">📐 House Size (sq ft)</label>
+      <input type="number" id="sqft-input" value="1800" min="500" max="10000" step="100" onchange="setSqft(this.value)" class="mb-3">
       <div class="flex flex-wrap gap-2" id="sqft-buttons"></div>
     </div>
 
     <div class="mb-6">
-      <label class="block text-sm text-slate-400 mb-2">📅 Predict For</label>
+      <label class="block text-sm text-slate-400 mb-2">📅 Predict Price On</label>
+      <input type="date" id="date-input" onchange="setDate(this.value)" class="mb-3">
       <div class="flex flex-wrap gap-2" id="date-buttons"></div>
     </div>
 
@@ -56,49 +68,71 @@
   </div>
 
   <script>
-    var location = 'san-mateo';
+    var currentLocation = 'san-mateo';
     var sqft = 1800;
-    var months = 6;
+    var targetDate = new Date();
+    targetDate.setMonth(targetDate.getMonth() + 6);
 
-    var SQFT_OPTIONS = [1200, 1500, 1800, 2200, 2800];
-    var DATE_OPTIONS = [{label:'3mo',m:3},{label:'6mo',m:6},{label:'1yr',m:12},{label:'2yr',m:24}];
+    var SQFT_OPTIONS = [1200, 1500, 1800, 2200, 2800, 3500];
+    var DATE_OPTIONS = [{label:'3mo',m:3},{label:'6mo',m:6},{label:'1yr',m:12},{label:'2yr',m:24},{label:'5yr',m:60}];
 
     function formatPrice(p) { return p >= 1000000 ? '$' + (p/1000000).toFixed(2) + 'M' : '$' + (p/1000).toFixed(0) + 'K'; }
+    
+    function formatDateStr(d) {
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+
+    function monthsBetween(d1, d2) {
+      return (d2.getFullYear() - d1.getFullYear()) * 12 + (d2.getMonth() - d1.getMonth());
+    }
 
     function predict() {
-      var basePrice = location === 'san-mateo' ? 1200000 : 950000;
-      var ppsf = location === 'san-mateo' ? 850 : 720;
+      var basePrice = currentLocation === 'san-mateo' ? 1200000 : 950000;
+      var ppsf = currentLocation === 'san-mateo' ? 850 : 720;
       var base = basePrice + (sqft - 1500) * ppsf;
+      
+      var now = new Date();
+      var months = Math.max(1, monthsBetween(now, targetDate));
+      
       var trend = 1.35 + (months * 0.005);
       var predicted = Math.round(base * trend);
-      var confidence = Math.max(30, 100 - (months * 3));
+      var confidence = Math.max(30, 100 - (months * 1.5));
       var uncertainty = (100 - confidence) / 100;
       var low = Math.round(predicted * (1 - uncertainty * 0.15));
       var high = Math.round(predicted * (1 + uncertainty * 0.15));
 
       document.getElementById('price').textContent = formatPrice(predicted);
-      document.getElementById('details').textContent = sqft.toLocaleString() + ' sq ft • ' + (location === 'san-mateo' ? 'San Mateo' : 'Albany');
+      document.getElementById('details').textContent = sqft.toLocaleString() + ' sq ft • ' + (currentLocation === 'san-mateo' ? 'San Mateo' : 'Albany') + ' • ' + targetDate.toLocaleDateString();
       document.getElementById('range').textContent = formatPrice(low) + ' - ' + formatPrice(high);
-      document.getElementById('confidence').textContent = confidence + '%';
+      document.getElementById('confidence').textContent = Math.round(confidence) + '%';
       document.getElementById('confidence').className = 'text-3xl font-bold ' + (confidence > 70 ? 'text-emerald-400' : confidence > 50 ? 'text-yellow-400' : 'text-red-400');
     }
 
     function setLocation(loc) {
-      location = loc;
+      currentLocation = loc;
       document.getElementById('btn-sanmateo').className = 'btn py-4 rounded-xl text-lg font-semibold ' + (loc === 'san-mateo' ? 'bg-blue-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600');
       document.getElementById('btn-albany').className = 'btn py-4 rounded-xl text-lg font-semibold ' + (loc === 'albany' ? 'bg-blue-600 shadow-lg' : 'bg-slate-700/50 border border-slate-600');
       predict();
     }
 
     function setSqft(s) {
-      sqft = s;
-      document.getElementById('sqft-display').textContent = s.toLocaleString() + ' sq ft';
+      sqft = parseInt(s) || 1800;
+      document.getElementById('sqft-input').value = sqft;
       renderSqftButtons();
       predict();
     }
 
+    function setDate(dateStr) {
+      targetDate = new Date(dateStr + 'T00:00:00');
+      document.getElementById('date-input').value = dateStr;
+      renderDateButtons();
+      predict();
+    }
+
     function setMonths(m) {
-      months = m;
+      targetDate = new Date();
+      targetDate.setMonth(targetDate.getMonth() + m);
+      document.getElementById('date-input').value = formatDateStr(targetDate);
       renderDateButtons();
       predict();
     }
@@ -118,11 +152,17 @@
       var html = '';
       for (var i = 0; i < DATE_OPTIONS.length; i++) {
         var d = DATE_OPTIONS[i];
-        html += '<button onclick="setMonths('+d.m+')" class="btn py-3 px-5 rounded-xl font-medium '+(months===d.m?'bg-purple-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+d.label+'</button>';
+        var checkDate = new Date();
+        checkDate.setMonth(checkDate.getMonth() + d.m);
+        var isSelected = Math.abs(monthsBetween(checkDate, targetDate)) < 1;
+        html += '<button onclick="setMonths('+d.m+')" class="btn py-3 px-5 rounded-xl font-medium '+(isSelected?'bg-purple-600 shadow-lg':'bg-slate-700/50 border border-slate-600')+'">'+d.label+'</button>';
       }
       container.innerHTML = html;
     }
 
+    // Initialize
+    document.getElementById('date-input').value = formatDateStr(targetDate);
+    document.getElementById('date-input').min = formatDateStr(new Date());
     renderSqftButtons();
     renderDateButtons();
     predict();
