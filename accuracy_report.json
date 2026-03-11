@@ -1,0 +1,67 @@
+{
+  "generated_at": "2026-03-10T17:20:00",
+  "summary": {
+    "description": "Model accuracy measured by training on historical data and comparing predictions to actual outcomes",
+    "interpretation": {
+      "mape": "Mean Absolute Percentage Error - lower is better, <5% is excellent, <10% is good",
+      "mean_bias": "Average over/under prediction - positive means model tends to overpredict",
+      "rmse": "Root Mean Square Error in dollars"
+    }
+  },
+  "accuracy_by_horizon": {
+    "6_months": {
+      "mape": 7.03,
+      "mean_bias": 1.26,
+      "rmse": 94072
+    },
+    "12_months": {
+      "mape": 7.06,
+      "mean_bias": 0.15,
+      "rmse": 99747
+    },
+    "18_months": {
+      "mape": 6.82,
+      "mean_bias": -1.2,
+      "rmse": 104459
+    },
+    "24_months": {
+      "mape": 6.25,
+      "mean_bias": -2.01,
+      "rmse": 102648
+    }
+  },
+  "detailed_predictions": {
+    "san-mateo": {
+      "mape": 5.76,
+      "mean_error_pct": -5.76,
+      "max_error_pct": 6.35,
+      "predictions": [
+        {"date": "2025-08", "actual": 1572792, "predicted": 1487221, "error_pct": -5.44},
+        {"date": "2025-09", "actual": 1573322, "predicted": 1488776, "error_pct": -5.37},
+        {"date": "2025-10", "actual": 1577403, "predicted": 1490634, "error_pct": -5.50},
+        {"date": "2025-11", "actual": 1584683, "predicted": 1493231, "error_pct": -5.77},
+        {"date": "2025-12", "actual": 1595005, "predicted": 1496804, "error_pct": -6.16},
+        {"date": "2026-01", "actual": 1603057, "predicted": 1501329, "error_pct": -6.35}
+      ]
+    },
+    "albany": {
+      "mape": 8.29,
+      "mean_error_pct": 8.29,
+      "max_error_pct": 8.98,
+      "predictions": [
+        {"date": "2025-08", "actual": 1149743, "predicted": 1252357, "error_pct": 8.92},
+        {"date": "2025-09", "actual": 1150557, "predicted": 1253912, "error_pct": 8.98},
+        {"date": "2025-10", "actual": 1153567, "predicted": 1255770, "error_pct": 8.86},
+        {"date": "2025-11", "actual": 1162100, "predicted": 1258366, "error_pct": 8.29},
+        {"date": "2025-12", "actual": 1173938, "predicted": 1261939, "error_pct": 7.50},
+        {"date": "2026-01", "actual": 1181788, "predicted": 1266464, "error_pct": 7.17}
+      ]
+    }
+  },
+  "model_performance_trend": [
+    {"forecast_horizon_months": 6, "test_period": "2025-08 to 2026-01", "mape": 7.03},
+    {"forecast_horizon_months": 12, "test_period": "2025-02 to 2026-01", "mape": 7.06},
+    {"forecast_horizon_months": 18, "test_period": "2024-08 to 2026-01", "mape": 6.82},
+    {"forecast_horizon_months": 24, "test_period": "2024-02 to 2026-01", "mape": 6.25}
+  ]
+}
