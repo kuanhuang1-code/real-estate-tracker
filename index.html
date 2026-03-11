@@ -5,10 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>🏠 Real Estate Tracker</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
   <style>
     body { font-family: system-ui, -apple-system, sans-serif; }
-    .gradient-text { background: linear-gradient(to right, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .gradient-text { background: linear-gradient(to right, #60a5fa, #34d399); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .btn-active-blue { background-color: #2563eb !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.3) !important; }
+    .btn-active-green { background-color: #059669 !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(16, 185, 129, 0.3) !important; }
+    .btn-active-purple { background-color: #9333ea !important; color: white !important; box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.3) !important; }
+    .btn-inactive { background-color: rgba(51, 65, 85, 0.5); color: #cbd5e1; border: 1px solid #475569; }
   </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white p-4 sm:p-6">
@@ -23,22 +27,35 @@
     <div class="mb-6">
       <label class="block text-sm font-medium text-slate-400 mb-2">📍 Location</label>
       <div class="grid grid-cols-2 gap-3">
-        <button id="btn-san-mateo" onclick="setLocation('san-mateo')" class="py-4 px-4 rounded-xl text-lg font-semibold transition-all bg-blue-600 text-white shadow-lg shadow-blue-500/30">San Mateo</button>
-        <button id="btn-albany" onclick="setLocation('albany')" class="py-4 px-4 rounded-xl text-lg font-semibold transition-all bg-slate-700/50 text-slate-300 border border-slate-600">Albany</button>
+        <button id="btn-san-mateo" class="py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-active-blue">San Mateo</button>
+        <button id="btn-albany" class="py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-inactive">Albany</button>
       </div>
     </div>
 
     <!-- Square Footage -->
     <div class="mb-6">
       <label class="block text-sm font-medium text-slate-400 mb-2">📐 House Size: <span id="sqft-display" class="text-white font-bold">1,800 sq ft</span></label>
-      <div class="flex flex-wrap gap-2" id="sqft-buttons"></div>
-      <input type="range" id="sqft-slider" min="800" max="4000" step="100" value="1800" oninput="setSqft(this.value)" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 mt-3">
+      <div class="flex flex-wrap gap-2" id="sqft-buttons">
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-sqft="1200">1,200</button>
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-sqft="1500">1,500</button>
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-active-green" data-sqft="1800">1,800</button>
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-sqft="2200">2,200</button>
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-sqft="2800">2,800</button>
+        <button class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-sqft="3500">3,500</button>
+      </div>
+      <input type="range" id="sqft-slider" min="800" max="4000" step="100" value="1800" class="w-full h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-emerald-500 mt-3">
     </div>
 
     <!-- Prediction Timeframe -->
     <div class="mb-6">
       <label class="block text-sm font-medium text-slate-400 mb-2">📅 Predict For</label>
-      <div class="flex flex-wrap gap-2" id="time-buttons"></div>
+      <div class="flex flex-wrap gap-2" id="time-buttons">
+        <button class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-months="3">3mo</button>
+        <button class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-active-purple" data-months="6">6mo</button>
+        <button class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-months="12">1yr</button>
+        <button class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-months="24">2yr</button>
+        <button class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive" data-months="60">5yr</button>
+      </div>
     </div>
 
     <!-- Prediction Result Card -->
@@ -46,7 +63,7 @@
       <div class="text-center mb-4">
         <p class="text-slate-400 text-sm">Predicted Price</p>
         <p id="predicted-price" class="text-5xl sm:text-6xl font-bold text-white mt-1">$1.85M</p>
-        <p id="prediction-details" class="text-slate-400 text-sm mt-2">1,800 sq ft • San Mateo</p>
+        <p id="prediction-details" class="text-slate-400 text-sm mt-2">1,800 sq ft • San Mateo • 6 months</p>
       </div>
       <div class="grid grid-cols-2 gap-4 mt-4">
         <div class="bg-slate-800/50 rounded-xl p-4 text-center">
@@ -57,7 +74,7 @@
         </div>
         <div class="bg-slate-800/50 rounded-xl p-4 text-center">
           <p class="text-slate-400 text-xs">Confidence</p>
-          <p id="confidence" class="text-4xl font-bold mt-2 text-emerald-400">85%</p>
+          <p id="confidence" class="text-4xl font-bold mt-2 text-emerald-400">91%</p>
           <p id="confidence-label" class="text-slate-500 text-xs mt-1">High</p>
         </div>
       </div>
@@ -66,7 +83,7 @@
     <!-- Chart -->
     <div class="bg-slate-800/50 rounded-2xl p-4 border border-slate-700 mb-6">
       <h2 class="text-lg font-semibold mb-3">📈 Price Trend</h2>
-      <div class="h-64 sm:h-80">
+      <div style="height: 300px; position: relative;">
         <canvas id="priceChart"></canvas>
       </div>
     </div>
@@ -79,10 +96,10 @@
 
   <script>
     // State
-    let location = 'san-mateo';
-    let sqft = 1800;
-    let months = 6;
-    let chart = null;
+    let currentLocation = 'san-mateo';
+    let currentSqft = 1800;
+    let currentMonths = 6;
+    let priceChart = null;
 
     // Data
     const AREA_DATA = {
@@ -90,65 +107,7 @@
       'albany': { basePrice: 1150000, pricePerSqft: 780, trend: 0.035 }
     };
 
-    const SQFT_PRESETS = [1200, 1500, 1800, 2200, 2800, 3500];
-    const TIME_PRESETS = [
-      { label: '3mo', months: 3 },
-      { label: '6mo', months: 6 },
-      { label: '1yr', months: 12 },
-      { label: '2yr', months: 24 },
-      { label: '5yr', months: 60 }
-    ];
-
-    // Initialize
-    function init() {
-      renderSqftButtons();
-      renderTimeButtons();
-      updatePrediction();
-      renderChart();
-    }
-
-    function renderSqftButtons() {
-      const container = document.getElementById('sqft-buttons');
-      container.innerHTML = SQFT_PRESETS.map(size => `
-        <button onclick="setSqft(${size})" class="sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all ${sqft === size ? 'bg-emerald-600 text-white shadow-lg shadow-emerald-500/30' : 'bg-slate-700/50 text-slate-300 border border-slate-600'}" data-sqft="${size}">
-          ${size.toLocaleString()}
-        </button>
-      `).join('');
-    }
-
-    function renderTimeButtons() {
-      const container = document.getElementById('time-buttons');
-      container.innerHTML = TIME_PRESETS.map(preset => `
-        <button onclick="setMonths(${preset.months})" class="time-btn py-3 px-5 rounded-xl text-base font-medium transition-all ${months === preset.months ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/30' : 'bg-slate-700/50 text-slate-300 border border-slate-600'}" data-months="${preset.months}">
-          ${preset.label}
-        </button>
-      `).join('');
-    }
-
-    function setLocation(loc) {
-      location = loc;
-      document.getElementById('btn-san-mateo').className = `py-4 px-4 rounded-xl text-lg font-semibold transition-all ${loc === 'san-mateo' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-700/50 text-slate-300 border border-slate-600'}`;
-      document.getElementById('btn-albany').className = `py-4 px-4 rounded-xl text-lg font-semibold transition-all ${loc === 'albany' ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/30' : 'bg-slate-700/50 text-slate-300 border border-slate-600'}`;
-      updatePrediction();
-      renderChart();
-    }
-
-    function setSqft(value) {
-      sqft = parseInt(value);
-      document.getElementById('sqft-display').textContent = sqft.toLocaleString() + ' sq ft';
-      document.getElementById('sqft-slider').value = sqft;
-      renderSqftButtons();
-      updatePrediction();
-      renderChart();
-    }
-
-    function setMonths(m) {
-      months = m;
-      renderTimeButtons();
-      updatePrediction();
-      renderChart();
-    }
-
+    // Calculate price
     function calculatePrice(loc, sq, monthsAhead) {
       const data = AREA_DATA[loc];
       const basePrice = data.basePrice + (sq - 1500) * data.pricePerSqft;
@@ -156,132 +115,231 @@
       return Math.round(basePrice * growth);
     }
 
+    // Format price
     function formatPrice(price) {
       if (price >= 1000000) {
         return '$' + (price / 1000000).toFixed(2) + 'M';
       }
-      return '$' + (price / 1000).toFixed(0) + 'K';
+      return '$' + Math.round(price / 1000) + 'K';
     }
 
+    // Update prediction display
     function updatePrediction() {
-      const predictedPrice = calculatePrice(location, sqft, months);
-      const confidence = Math.max(50, 95 - months * 1.5);
+      const predictedPrice = calculatePrice(currentLocation, currentSqft, currentMonths);
+      const confidence = Math.max(50, 95 - currentMonths * 0.7);
       const uncertainty = (100 - confidence) / 100;
       const low = Math.round(predictedPrice * (1 - uncertainty * 0.15));
       const high = Math.round(predictedPrice * (1 + uncertainty * 0.15));
 
       document.getElementById('predicted-price').textContent = formatPrice(predictedPrice);
-      document.getElementById('prediction-details').textContent = `${sqft.toLocaleString()} sq ft • ${location === 'san-mateo' ? 'San Mateo' : 'Albany'} • ${months} months`;
+      document.getElementById('prediction-details').textContent = 
+        currentSqft.toLocaleString() + ' sq ft • ' + 
+        (currentLocation === 'san-mateo' ? 'San Mateo' : 'Albany') + ' • ' + 
+        (currentMonths >= 12 ? (currentMonths/12) + ' year' + (currentMonths > 12 ? 's' : '') : currentMonths + ' months');
       document.getElementById('price-low').textContent = formatPrice(low);
       document.getElementById('price-high').textContent = formatPrice(high);
       document.getElementById('confidence').textContent = Math.round(confidence) + '%';
       
       const confEl = document.getElementById('confidence');
       const labelEl = document.getElementById('confidence-label');
-      if (confidence > 70) {
+      if (confidence > 80) {
         confEl.className = 'text-4xl font-bold mt-2 text-emerald-400';
         labelEl.textContent = 'High';
-      } else if (confidence > 50) {
+      } else if (confidence > 60) {
         confEl.className = 'text-4xl font-bold mt-2 text-yellow-400';
         labelEl.textContent = 'Medium';
       } else {
         confEl.className = 'text-4xl font-bold mt-2 text-red-400';
         labelEl.textContent = 'Low';
       }
+      
+      updateChart();
     }
 
-    function renderChart() {
-      const ctx = document.getElementById('priceChart').getContext('2d');
-      
-      // Generate historical data (past 3 years)
+    // Update chart
+    function updateChart() {
       const labels = [];
-      const historicalPrices = [];
-      const futurePrices = [];
+      const historicalData = [];
+      const predictedData = [];
       
       const now = new Date();
       
-      // Past 36 months
-      for (let i = -36; i <= 0; i++) {
+      // Historical: past 24 months
+      for (let i = -24; i <= 0; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() + i);
         labels.push(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
         
-        const noise = 1 + (Math.random() - 0.5) * 0.06;
-        const price = calculatePrice(location, sqft, i) * noise;
-        historicalPrices.push(Math.round(price));
-        futurePrices.push(null);
+        // Add some realistic variation
+        const seasonality = Math.sin((date.getMonth() / 12) * Math.PI * 2) * 0.02;
+        const noise = (Math.random() - 0.5) * 0.03;
+        const price = calculatePrice(currentLocation, currentSqft, i) * (1 + seasonality + noise);
+        historicalData.push(Math.round(price));
+        predictedData.push(null);
       }
       
-      // Future months
-      for (let i = 1; i <= months; i++) {
+      // Future: up to selected months
+      for (let i = 1; i <= currentMonths; i++) {
         const date = new Date(now);
         date.setMonth(date.getMonth() + i);
         labels.push(date.toLocaleDateString('en-US', { month: 'short', year: '2-digit' }));
-        historicalPrices.push(null);
-        futurePrices.push(calculatePrice(location, sqft, i));
+        historicalData.push(null);
+        predictedData.push(calculatePrice(currentLocation, currentSqft, i));
       }
 
-      if (chart) chart.destroy();
-      
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [
-            {
-              label: 'Historical',
-              data: historicalPrices,
-              borderColor: '#10b981',
-              backgroundColor: 'rgba(16, 185, 129, 0.1)',
-              fill: true,
-              tension: 0.3,
-              pointRadius: 0
+      // Connect the lines at current month
+      if (historicalData.length > 0 && predictedData.length > historicalData.filter(x => x !== null).length) {
+        const lastHistorical = historicalData.filter(x => x !== null).pop();
+        const firstPredictedIndex = predictedData.findIndex(x => x !== null);
+        if (firstPredictedIndex > 0) {
+          predictedData[firstPredictedIndex - 1] = lastHistorical;
+        }
+      }
+
+      if (priceChart) {
+        priceChart.data.labels = labels;
+        priceChart.data.datasets[0].data = historicalData;
+        priceChart.data.datasets[1].data = predictedData;
+        priceChart.update('none');
+      } else {
+        const ctx = document.getElementById('priceChart').getContext('2d');
+        priceChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: 'Historical',
+                data: historicalData,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+                borderWidth: 2
+              },
+              {
+                label: 'Predicted',
+                data: predictedData,
+                borderColor: '#a855f7',
+                backgroundColor: 'rgba(168, 85, 247, 0.1)',
+                borderDash: [6, 4],
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+                borderWidth: 2
+              }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              intersect: false,
+              mode: 'index'
             },
-            {
-              label: 'Predicted',
-              data: futurePrices,
-              borderColor: '#8b5cf6',
-              borderDash: [5, 5],
-              backgroundColor: 'rgba(139, 92, 246, 0.1)',
-              fill: true,
-              tension: 0.3,
-              pointRadius: 0
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              display: true,
-              labels: { color: '#9ca3af' }
+            plugins: {
+              legend: {
+                display: true,
+                position: 'top',
+                labels: { color: '#9ca3af', usePointStyle: true }
+              },
+              tooltip: {
+                backgroundColor: '#1f2937',
+                titleColor: '#f3f4f6',
+                bodyColor: '#d1d5db',
+                borderColor: '#374151',
+                borderWidth: 1,
+                callbacks: {
+                  label: function(context) {
+                    if (context.raw === null) return null;
+                    return context.dataset.label + ': ' + formatPrice(context.raw);
+                  }
+                }
+              }
             },
-            tooltip: {
-              callbacks: {
-                label: (context) => formatPrice(context.raw)
+            scales: {
+              x: {
+                ticks: { color: '#9ca3af', maxTicksLimit: 8, maxRotation: 0 },
+                grid: { color: 'rgba(55, 65, 81, 0.5)' }
+              },
+              y: {
+                ticks: {
+                  color: '#9ca3af',
+                  callback: function(value) { return formatPrice(value); }
+                },
+                grid: { color: 'rgba(55, 65, 81, 0.5)' }
               }
             }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#9ca3af', maxTicksLimit: 8 },
-              grid: { color: '#374151' }
-            },
-            y: {
-              ticks: {
-                color: '#9ca3af',
-                callback: (value) => formatPrice(value)
-              },
-              grid: { color: '#374151' }
-            }
           }
-        }
-      });
+        });
+      }
     }
 
-    // Start
-    init();
+    // Event Listeners
+    document.getElementById('btn-san-mateo').addEventListener('click', function() {
+      currentLocation = 'san-mateo';
+      this.className = 'py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-active-blue';
+      document.getElementById('btn-albany').className = 'py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-inactive';
+      updatePrediction();
+    });
+
+    document.getElementById('btn-albany').addEventListener('click', function() {
+      currentLocation = 'albany';
+      this.className = 'py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-active-blue';
+      document.getElementById('btn-san-mateo').className = 'py-4 px-4 rounded-xl text-lg font-semibold transition-all btn-inactive';
+      updatePrediction();
+    });
+
+    // Sqft buttons
+    document.querySelectorAll('.sqft-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        currentSqft = parseInt(this.dataset.sqft);
+        document.getElementById('sqft-display').textContent = currentSqft.toLocaleString() + ' sq ft';
+        document.getElementById('sqft-slider').value = currentSqft;
+        document.querySelectorAll('.sqft-btn').forEach(function(b) {
+          b.className = 'sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive';
+        });
+        this.className = 'sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-active-green';
+        updatePrediction();
+      });
+    });
+
+    // Sqft slider
+    document.getElementById('sqft-slider').addEventListener('input', function() {
+      currentSqft = parseInt(this.value);
+      document.getElementById('sqft-display').textContent = currentSqft.toLocaleString() + ' sq ft';
+      document.querySelectorAll('.sqft-btn').forEach(function(b) {
+        if (parseInt(b.dataset.sqft) === currentSqft) {
+          b.className = 'sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-active-green';
+        } else {
+          b.className = 'sqft-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive';
+        }
+      });
+      updatePrediction();
+    });
+
+    // Time buttons
+    document.querySelectorAll('.time-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        currentMonths = parseInt(this.dataset.months);
+        document.querySelectorAll('.time-btn').forEach(function(b) {
+          b.className = 'time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-inactive';
+        });
+        this.className = 'time-btn py-3 px-5 rounded-xl text-base font-medium transition-all btn-active-purple';
+        updatePrediction();
+      });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      updatePrediction();
+    });
+    
+    // Fallback init
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+      updatePrediction();
+    }
   </script>
 </body>
 </html>
