@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Cancun Getaway 🌴💕</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Lato', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .hero {
+            height: 100vh;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)),
+                        url('https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=1920&q=80') center/cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: white;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease;
+        }
+
+        .hero p {
+            font-size: 1.5rem;
+            font-weight: 300;
+            text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+            animation: fadeInUp 1s ease 0.3s both;
+        }
+
+        .hero .date {
+            margin-top: 2rem;
+            padding: 1rem 2rem;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 50px;
+            font-size: 1.2rem;
+            animation: fadeInUp 1s ease 0.6s both;
+        }
+
+        .scroll-hint {
+            position: absolute;
+            bottom: 30px;
+            animation: bounce 2s infinite;
+            font-size: 2rem;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-white {
+            background: white;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 3rem;
+            color: #2c3e50;
+        }
+
+        .section-white .section-title {
+            color: #2c3e50;
+        }
+
+        .intro-text {
+            text-align: center;
+            font-size: 1.3rem;
+            line-height: 1.8;
+            max-width: 800px;
+            margin: 0 auto 3rem;
+            color: white;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .feature-card-content {
+            padding: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        .restaurants {
+            background: white;
+            padding: 5rem 2rem;
+        }
+
+        .restaurant-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .restaurant-item {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 1.5rem;
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .restaurant-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .restaurant-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+
+        .restaurant-item .cuisine {
+            color: #764ba2;
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .restaurant-item p {
+            color: #555;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .highlight-box {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            margin: 3rem auto;
+            max-width: 800px;
+        }
+
+        .highlight-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+
+        .highlight-box p {
+            font-size: 1.1rem;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        .drinks-section {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            padding: 5rem 2rem;
+            color: white;
+        }
+
+        .drinks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .drink-item {
+            text-align: center;
+            padding: 2rem;
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+
+        .drink-item .emoji {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .drink-item h4 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .reviews {
+            background: #f8f9fa;
+            padding: 5rem 2rem;
+        }
+
+        .review-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .review-card .stars {
+            color: #f1c40f;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-card p {
+            font-style: italic;
+            color: #555;
+            line-height: 1.7;
+            font-size: 1.1rem;
+        }
+
+        .review-card .author {
+            margin-top: 1rem;
+            font-weight: 600;
+            color: #764ba2;
+        }
+
+        .price-box {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            max-width: 600px;
+            margin: 3rem auto;
+        }
+
+        .price-box h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .price-box .price {
+            font-size: 3rem;
+            font-weight: 700;
+        }
+
+        .price-box .per-person {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .price-box .includes {
+            margin-top: 1.5rem;
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+
+        .cta {
+            text-align: center;
+            padding: 5rem 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .cta h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .cta p {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 1rem 3rem;
+            background: white;
+            color: #764ba2;
+            text-decoration: none;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            transition: transform 0.3s ease;
+        }
+
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.03);
+        }
+
+        .emoji-large {
+            font-size: 4rem;
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            background: #2c3e50;
+            color: white;
+        }
+
+        footer p {
+            font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            .hero p {
+                font-size: 1.2rem;
+            }
+            .section-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>Paradise Awaits Us 🌺</h1>
+        <p>Excellence Playa Mujeres, Cancun</p>
+        <div class="date">📅 Memorial Day Weekend 2026<br>May 21-25</div>
+        <div class="scroll-hint">👇</div>
+    </div>
+
+    <section class="section">
+        <div class="emoji-large">🏝️✨💑</div>
+        <p class="intro-text">
+            Imagine waking up to turquoise waters, spending lazy days by infinity pools, 
+            indulging in world-class cuisine, and sipping cocktails as the sun sets over the Caribbean. 
+            This isn't a dream — it's Excellence Playa Mujeres, and it's waiting for us.
+        </p>
+
+        <div class="features">
+            <div class="feature-card">
+                <img src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=600&q=80" alt="Luxury Suite">
+                <div class="feature-card-content">
+                    <h3>Luxurious Suites</h3>
+                    <p>Spacious rooms with private balconies, plunge pools, and stunning ocean views. Wake up to paradise every morning.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <img src="https://images.unsplash.com/photo-1540541338287-41700207dee6?w=600&q=80" alt="Beach">
+                <div class="feature-card-content">
+                    <h3>Pristine Beaches</h3>
+                    <p>Soft white sand, crystal-clear Caribbean waters, and beach service that brings drinks right to your lounger.</p>
+                </div>
+            </div>
+            <div class="feature-card">
+                <img src="https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=600&q=80" alt="Pool">
+                <div class="feature-card-content">
+                    <h3>Adults-Only Paradise</h3>
+                    <p>Peaceful, romantic atmosphere. Seven stunning pools, swim-up bars, and a serene spa. Just us, no kids.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="restaurants">
+        <h2 class="section-title">🍽️ 11 World-Class Restaurants</h2>
+        <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; color: #666; font-size: 1.1rem;">
+            No reservations needed. No limits on ordering. Just incredible food from around the world, 
+            whenever you want it. People rave about the food here — it's NOT your typical all-inclusive buffet.
+        </p>
+
+        <div class="restaurant-grid">
+            <div class="restaurant-item">
+                <h4>🇫🇷 Chez Isabelle</h4>
+                <div class="cuisine">French Fine Dining</div>
+                <p><strong>The famous duck!</strong> Plus lobster, foie gras, scallops, filet mignon. Live music makes it ultra romantic.</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🦞 The Lobster House</h4>
+                <div class="cuisine">Seafood & Shellfish</div>
+                <p>Order as many lobsters as you want — grilled or steamed with 5 sauce options. Octopus, ceviche, mussels...</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🇮🇹 Toscana</h4>
+                <div class="cuisine">Italian</div>
+                <p>Hand-rolled pasta, slow-simmered sauces. Also has the best breakfast buffet — fresh juices, omelettes, pastries!</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🇲🇽 Agave</h4>
+                <div class="cuisine">Mexican</div>
+                <p>Authentic Mexican dishes with live mariachi band. Plus Friday Fiesta Mexicana with street tacos & churros!</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🇮🇳 Basmati</h4>
+                <div class="cuisine">Indian</div>
+                <p>Creamy curries, fluffy naan, tikka masala, vindaloo lamb. Trained chefs who specialize in Indian cuisine.</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🇪🇸 Barcelona</h4>
+                <div class="cuisine">Spanish Tapas</div>
+                <p>Seafood paella, grilled meats, tapas plates perfect for sharing over wine.</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🥩 The Grill</h4>
+                <div class="cuisine">Steakhouse</div>
+                <p>Sizzling steaks, juicy burgers, ocean views. Outdoor dining with the Caribbean breeze.</p>
+            </div>
+            <div class="restaurant-item">
+                <h4>🧀 Flavor Market</h4>
+                <div class="cuisine">Charcuterie & Tapas</div>
+                <p>Cured meats, artisanal cheeses, wine pairings. The octopus and patatas bravas are incredible.</p>
+            </div>
+        </div>
+
+        <div class="highlight-box">
+            <h3>🦆 The Duck at Chez Isabelle</h3>
+            <p>
+                Everyone talks about the duck breast here — it's legendary. Perfectly seared, 
+                served with elegant French sides. Pair it with wine from their extensive cellar. 
+                This alone is worth the trip!
+            </p>
+        </div>
+    </section>
+
+    <section class="drinks-section">
+        <h2 class="section-title" style="color: white;">🍹 11 Bars & Premium Drinks</h2>
+        <p style="text-align: center; max-width: 700px; margin: 0 auto 3rem; opacity: 0.9;">
+            Premium wine, beer, and spirits are the standard — not the upgrade. 
+            Top-shelf everything, creative cocktails, and a drink is never more than steps away.
+        </p>
+
+        <div class="drinks-grid">
+            <div class="drink-item">
+                <div class="emoji">🍸</div>
+                <h4>Martini Bar</h4>
+                <p>Lobby bar celebrating the iconic martini with artful variations</p>
+            </div>
+            <div class="drink-item">
+                <div class="emoji">🏊</div>
+                <h4>Swim-Up Bars</h4>
+                <p>Stay in the pool, drinks come to you</p>
+            </div>
+            <div class="drink-item">
+                <div class="emoji">🌅</div>
+                <h4>Beach Service</h4>
+                <p>Cocktails delivered right to your beach lounger</p>
+            </div>
+            <div class="drink-item">
+                <div class="emoji">☕</div>
+                <h4>Aroma Coffee</h4>
+                <p>Artisanal espresso, pastries, dessert bites 24/7</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="reviews">
+        <h2 class="section-title">💬 What People Say</h2>
+
+        <div class="review-card">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>"The food here is much better than what's offered at many other all-inclusive resorts! 
+            Chez Isabelle is the place for finer foods — lobster, duck breast, foie gras, scallops. 
+            You'll be treated like royalty from the moment you arrive."</p>
+            <div class="author">— Travels With Elle</div>
+        </div>
+
+        <div class="review-card">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>"EPM had a bigger focus on cocktails and alcohol options than other resorts. 
+            Martini Bar had amazing cocktails, and you can get drinks anywhere — pool, beach, your room. 
+            The variety of food is insane and you never need reservations!"</p>
+            <div class="author">— One Girl Whole World</div>
+        </div>
+
+        <div class="review-card">
+            <div class="stars">⭐⭐⭐⭐⭐</div>
+            <p>"Order as many lobster dishes as you'd like — no one is counting! 
+            The Fiesta Mexicana on Friday nights with street tacos and churros is not to be missed. 
+            Coffee shop has unlimited pastries and desserts. This place is heaven."</p>
+            <div class="author">— What's Cookin' Chicago</div>
+        </div>
+    </section>
+
+    <section class="section-white" style="padding: 5rem 2rem;">
+        <h2 class="section-title">💰 The Investment</h2>
+        
+        <div class="price-box">
+            <h3>~$1,000-1,500 per person</h3>
+            <div class="per-person">for the entire week</div>
+            <div class="includes">
+                ✓ Luxury oceanview suite<br>
+                ✓ ALL food at 11 restaurants<br>
+                ✓ ALL drinks (premium included)<br>
+                ✓ 24/7 room service<br>
+                ✓ Pools, beach, entertainment<br>
+                ✓ Free airport transfer (current promo!)
+            </div>
+        </div>
+
+        <p style="text-align: center; color: #666; max-width: 600px; margin: 0 auto;">
+            Current deal: <strong>Up to 45% off + free transfer + free cancellation</strong> for travel through May 31, 2026!
+        </p>
+    </section>
+
+    <section class="cta">
+        <h2>Let's Go? 🌴💕</h2>
+        <p>Memorial Day Weekend • May 21-25, 2026</p>
+        <a href="https://www.excellenceresorts.com/cancun/excellence-playa-mujeres/" class="cta-button" target="_blank">
+            See More & Book →
+        </a>
+    </section>
+
+    <footer>
+        <p>Made with 💕 for the best adventure buddy</p>
+    </footer>
+</body>
+</html>
