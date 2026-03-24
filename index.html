@@ -72,7 +72,7 @@
         <li>• Uses <strong>Ridge Regression</strong> with time + sqft features</li>
         <li>• Learns seasonal patterns & long-term trends</li>
         <li>• Adjusts price by <strong>$/sq ft</strong> for your area</li>
-        <li>• Last updated: <span id='last-update'>2026-02</span></li>
+        <li>• Last updated: <span id='last-update'>2026-03</span></li>
       </ul>
     </div>
 
@@ -82,41 +82,41 @@
   <script>
     // Real median home sizes and price-per-sqft from Zillow data
     const AREA_DATA = {
-      'san-mateo': { medianSqft: 1650, pricePerSqft: 970, basePrice: 1603057 },
-      'albany': { medianSqft: 1450, pricePerSqft: 815, basePrice: 1181788 }
+      'san-mateo': { medianSqft: 1650, pricePerSqft: 988, basePrice: 1629934 },
+      'albany': { medianSqft: 1450, pricePerSqft: 841, basePrice: 1220231 }
     };
 
     // Real price history from Zillow (last 3 years for cleaner chart)
     const HISTORY = {
       "san-mateo": [
-        {"date":"2023-01","price":1519153},{"date":"2023-02","price":1500076},{"date":"2023-03","price":1484625},
-        {"date":"2023-04","price":1478587},{"date":"2023-05","price":1477787},{"date":"2023-06","price":1481860},
-        {"date":"2023-07","price":1489984},{"date":"2023-08","price":1499807},{"date":"2023-09","price":1509615},
-        {"date":"2023-10","price":1516723},{"date":"2023-11","price":1518819},{"date":"2023-12","price":1514820},
-        {"date":"2024-01","price":1507085},{"date":"2024-02","price":1502344},{"date":"2024-03","price":1511110},
-        {"date":"2024-04","price":1530608},{"date":"2024-05","price":1554085},{"date":"2024-06","price":1569046},
-        {"date":"2024-07","price":1578299},{"date":"2024-08","price":1581677},{"date":"2024-09","price":1584482},
-        {"date":"2024-10","price":1584872},{"date":"2024-11","price":1589555},{"date":"2024-12","price":1597651},
-        {"date":"2025-01","price":1605070},{"date":"2025-02","price":1608231},{"date":"2025-03","price":1607044},
-        {"date":"2025-04","price":1604742},{"date":"2025-05","price":1598245},{"date":"2025-06","price":1587364},
-        {"date":"2025-07","price":1579045},{"date":"2025-08","price":1572793},{"date":"2025-09","price":1573322},
-        {"date":"2025-10","price":1577404},{"date":"2025-11","price":1584684},{"date":"2025-12","price":1595006},
-        {"date":"2026-01","price":1603057}
+        {"date":"2023-01","price":1566438},{"date":"2023-02","price":1544623},{"date":"2023-03","price":1525226},
+        {"date":"2023-04","price":1509516},{"date":"2023-05","price":1503377},{"date":"2023-06","price":1502562},
+        {"date":"2023-07","price":1506704},{"date":"2023-08","price":1514964},{"date":"2023-09","price":1524952},
+        {"date":"2023-10","price":1534924},{"date":"2023-11","price":1542152},{"date":"2023-12","price":1544283},
+        {"date":"2024-01","price":1540217},{"date":"2024-02","price":1532352},{"date":"2024-03","price":1527532},
+        {"date":"2024-04","price":1536445},{"date":"2024-05","price":1556270},{"date":"2024-06","price":1580141},
+        {"date":"2024-07","price":1595352},{"date":"2024-08","price":1604760},{"date":"2024-09","price":1608194},
+        {"date":"2024-10","price":1611047},{"date":"2024-11","price":1611444},{"date":"2024-12","price":1616205},
+        {"date":"2025-01","price":1624437},{"date":"2025-02","price":1631980},{"date":"2025-03","price":1635194},
+        {"date":"2025-04","price":1633987},{"date":"2025-05","price":1631647},{"date":"2025-06","price":1625040},
+        {"date":"2025-07","price":1613977},{"date":"2025-08","price":1605519},{"date":"2025-09","price":1599161},
+        {"date":"2025-10","price":1599700},{"date":"2025-11","price":1603850},{"date":"2025-12","price":1611252},
+        {"date":"2026-01","price":1621747},{"date":"2026-02","price":1629934}
       ],
       "albany": [
-        {"date":"2023-01","price":1155031},{"date":"2023-02","price":1142445},{"date":"2023-03","price":1133210},
-        {"date":"2023-04","price":1132238},{"date":"2023-05","price":1136921},{"date":"2023-06","price":1142732},
-        {"date":"2023-07","price":1150605},{"date":"2023-08","price":1157405},{"date":"2023-09","price":1166700},
-        {"date":"2023-10","price":1173759},{"date":"2023-11","price":1178072},{"date":"2023-12","price":1177829},
-        {"date":"2024-01","price":1172985},{"date":"2024-02","price":1170505},{"date":"2024-03","price":1173339},
-        {"date":"2024-04","price":1182101},{"date":"2024-05","price":1190063},{"date":"2024-06","price":1192345},
-        {"date":"2024-07","price":1192686},{"date":"2024-08","price":1190030},{"date":"2024-09","price":1186617},
-        {"date":"2024-10","price":1179047},{"date":"2024-11","price":1173723},{"date":"2024-12","price":1171848},
-        {"date":"2025-01","price":1171986},{"date":"2025-02","price":1174535},{"date":"2025-03","price":1176384},
-        {"date":"2025-04","price":1177394},{"date":"2025-05","price":1172585},{"date":"2025-06","price":1162042},
-        {"date":"2025-07","price":1154992},{"date":"2025-08","price":1149744},{"date":"2025-09","price":1150558},
-        {"date":"2025-10","price":1153568},{"date":"2025-11","price":1162101},{"date":"2025-12","price":1173938},
-        {"date":"2026-01","price":1181788}
+        {"date":"2023-01","price":1207958},{"date":"2023-02","price":1192604},{"date":"2023-03","price":1179608},
+        {"date":"2023-04","price":1170073},{"date":"2023-05","price":1169069},{"date":"2023-06","price":1173905},
+        {"date":"2023-07","price":1179905},{"date":"2023-08","price":1188034},{"date":"2023-09","price":1195055},
+        {"date":"2023-10","price":1204653},{"date":"2023-11","price":1211941},{"date":"2023-12","price":1216395},
+        {"date":"2024-01","price":1216144},{"date":"2024-02","price":1211142},{"date":"2024-03","price":1208581},
+        {"date":"2024-04","price":1211507},{"date":"2024-05","price":1220555},{"date":"2024-06","price":1228776},
+        {"date":"2024-07","price":1231132},{"date":"2024-08","price":1231484},{"date":"2024-09","price":1228741},
+        {"date":"2024-10","price":1225218},{"date":"2024-11","price":1217401},{"date":"2024-12","price":1211904},
+        {"date":"2025-01","price":1209968},{"date":"2025-02","price":1210110},{"date":"2025-03","price":1212743},
+        {"date":"2025-04","price":1214652},{"date":"2025-05","price":1215694},{"date":"2025-06","price":1210729},
+        {"date":"2025-07","price":1199843},{"date":"2025-08","price":1192564},{"date":"2025-09","price":1187145},
+        {"date":"2025-10","price":1187985},{"date":"2025-11","price":1191093},{"date":"2025-12","price":1199904},
+        {"date":"2026-01","price":1212126},{"date":"2026-02","price":1220231}
       ]
     };
 
@@ -141,7 +141,7 @@
       var sqftAdjustment = sqftDiff * area.pricePerSqft;
       
       // Time-based trend (learned from historical data)
-      var lastDataDate = new Date('2026-01-31');
+      var lastDataDate = new Date('2026-02-28');
       var monthsAhead = (date.getFullYear() - lastDataDate.getFullYear()) * 12 + (date.getMonth() - lastDataDate.getMonth());
       
       // Monthly appreciation rate (~0.3% per month based on Bay Area trends)
@@ -255,7 +255,7 @@
       // Add predictions
       var predLabels = [];
       var predPrices = [];
-      var lastDate = new Date('2026-01-31');
+      var lastDate = new Date('2026-02-28');
       var tempDate = new Date(lastDate);
       
       while (tempDate <= targetDate) {
