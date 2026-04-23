@@ -1,0 +1,67 @@
+name: Weekly Zillow Refresh
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 17 * * 0'
+    - cron: '0 18 * * 0'
+
+permissions:
+  contents: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check scheduled time in Los Angeles
+        id: schedule_gate
+        run: |
+          LOCAL_HOUR=$(TZ=America/Los_Angeles date +%H)
+          LOCAL_DOW=$(TZ=America/Los_Angeles date +%u)
+          if [ "$LOCAL_DOW" = "7" ] && [ "$LOCAL_HOUR" = "10" ]; then
+            echo "run_update=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_update=false" >> "$GITHUB_OUTPUT"
+            echo "Skipping run outside Sunday 10am America/Los_Angeles"
+          fi
+
+      - name: Check out repository
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run tests
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        run: python -m unittest discover -s tests -v
+
+      - name: Refresh Zillow data
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        run: python scripts/update_tracker.py
+
+      - name: Commit refreshed tracker
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "No tracker changes to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "chore: refresh Zillow housing data"
+          git push origin HEAD:main
+          git push origin HEAD:gh-pages --force
+
+      - name: Verify live deployment
+        if: github.event_name == 'workflow_dispatch' || steps.schedule_gate.outputs.run_update == 'true'
+        run: |
+          sleep 10
+          html=$(curl -L --retry 5 --retry-delay 5 --retry-connrefused -s https://kuanhuang1-code.github.io/real-estate-tracker/)
+          echo "$html" | grep -q "id='last-update'"
